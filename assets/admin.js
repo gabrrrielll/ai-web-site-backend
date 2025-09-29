@@ -1,5 +1,18 @@
 jQuery(document).ready(function ($) {
 
+    // Log page load
+    console.log('AI Web Site Admin: Page loaded');
+
+    // Handle settings form submission
+    $('form[action*="admin-post.php"]').on('submit', function(e) {
+        console.log('AI Web Site Admin: Settings form submitted');
+        console.log('Form action:', $(this).attr('action'));
+        console.log('Form data:', $(this).serialize());
+        
+        // Let the form submit normally
+        return true;
+    });
+
     // Handle add subdomain form submission
     $('#add-subdomain-form').on('submit', function (e) {
         e.preventDefault();
