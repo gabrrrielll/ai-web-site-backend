@@ -76,6 +76,16 @@ class AI_Web_Site_Admin
             return;
         }
 
+        // Log the plugin URL for debugging
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'ENQUEUE_SCRIPTS', 'Enqueuing admin scripts', array(
+            'plugin_url' => AI_WEB_SITE_PLUGIN_URL,
+            'js_url' => AI_WEB_SITE_PLUGIN_URL . 'assets/admin.js',
+            'css_url' => AI_WEB_SITE_PLUGIN_URL . 'assets/admin.css',
+            'plugin_dir' => AI_WEB_SITE_PLUGIN_DIR,
+            'hook' => $hook
+        ));
+
         wp_enqueue_script(
             'ai-web-site-admin',
             AI_WEB_SITE_PLUGIN_URL . 'assets/admin.js',
