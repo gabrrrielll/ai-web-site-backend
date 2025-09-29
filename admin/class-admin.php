@@ -62,6 +62,9 @@ class AI_Web_Site_Admin
         // Add global hook to catch all admin_post requests
         add_action('admin_post', array($this, 'debug_admin_post'));
 
+        // Add admin menu
+        add_action('admin_menu', array($this, 'add_admin_menu'));
+
         // Log hook registration
         $logger = AI_Web_Site_Debug_Logger::get_instance();
         $logger->info('ADMIN', 'HOOKS_REGISTERED', 'Admin hooks registered successfully');
@@ -79,13 +82,12 @@ class AI_Web_Site_Admin
             'current_screen' => get_current_screen() ? get_current_screen()->id : 'unknown'
         ));
 
-        if ($hook !== 'settings_page_ai-web-site') {
-            $logger->info('ADMIN', 'ENQUEUE_SCRIPTS_SKIP', 'Skipping enqueue - wrong hook', array(
-                'hook' => $hook,
-                'expected' => 'settings_page_ai-web-site'
-            ));
-            return;
-        }
+        // Always load scripts for debugging - remove the hook check temporarily
+        $logger->info('ADMIN', 'ENQUEUE_SCRIPTS_LOADING', 'Loading scripts for hook', array(
+            'hook' => $hook,
+            'expected' => 'settings_page_ai-web-site',
+            'is_correct_hook' => ($hook === 'settings_page_ai-web-site')
+        ));
 
         // Load CSS inline
         $css_path = AI_WEB_SITE_PLUGIN_DIR . 'assets/admin.css';
@@ -118,6 +120,36 @@ class AI_Web_Site_Admin
         } else {
             $logger->error('ADMIN', 'JS_NOT_FOUND', 'JS file not found', array('js_path' => $js_path));
         }
+    }
+
+    /**
+     * Add admin menu
+     */
+    public function add_admin_menu()
+    {
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'MENU_ADD', 'Adding admin menu');
+
+        add_options_page(
+            __('AI Web Site Manager', 'ai-web-site'),
+            __('AI Web Site', 'ai-web-site'),
+            'manage_options',
+            'ai-web-site',
+            array($this, 'admin_page')
+        );
+
+        $logger->info('ADMIN', 'MENU_ADDED', 'Admin menu added successfully');
+    }
+
+    /**
+     * Admin page callback
+     */
+    public function admin_page()
+    {
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'PAGE_CALLBACK', 'Admin page callback called');
+        
+        include AI_WEB_SITE_PLUGIN_DIR . 'admin/admin-page.php';
     }
 
     /**
