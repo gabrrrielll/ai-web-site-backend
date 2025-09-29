@@ -148,7 +148,7 @@ class AI_Web_Site_Admin
     {
         $logger = AI_Web_Site_Debug_Logger::get_instance();
         $logger->info('ADMIN', 'PAGE_CALLBACK', 'Admin page callback called');
-        
+
         include AI_WEB_SITE_PLUGIN_DIR . 'admin/admin-page.php';
     }
 
