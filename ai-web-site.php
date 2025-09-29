@@ -68,7 +68,7 @@ class AI_Web_Site_Plugin
 
         // Initialize plugin
         add_action('plugins_loaded', array($this, 'init'));
-        
+
         // Add global hooks for debugging
         add_action('admin_init', array($this, 'debug_admin_init'));
         add_action('admin_post', array($this, 'debug_admin_post'));
@@ -132,7 +132,7 @@ class AI_Web_Site_Plugin
         // Flush rewrite rules
         flush_rewrite_rules();
     }
-    
+
     /**
      * Debug admin_init hook
      */
@@ -145,7 +145,7 @@ class AI_Web_Site_Plugin
             'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown'
         ));
     }
-    
+
     /**
      * Debug admin_post hook
      */
@@ -160,7 +160,7 @@ class AI_Web_Site_Plugin
             'user_can_manage_options' => current_user_can('manage_options')
         ));
     }
-    
+
     /**
      * Debug AJAX save hook
      */

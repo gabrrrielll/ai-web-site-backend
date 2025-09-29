@@ -4,11 +4,11 @@ jQuery(document).ready(function ($) {
     console.log('AI Web Site Admin: Page loaded');
 
     // Handle settings form submission
-    $('form[action*="admin-post.php"]').on('submit', function(e) {
+    $('form[action*="admin-post.php"]').on('submit', function (e) {
         console.log('AI Web Site Admin: Settings form submitted');
         console.log('Form action:', $(this).attr('action'));
         console.log('Form data:', $(this).serialize());
-        
+
         // Let the form submit normally
         return true;
     });
