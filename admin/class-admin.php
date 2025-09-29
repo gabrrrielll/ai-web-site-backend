@@ -87,40 +87,37 @@ class AI_Web_Site_Admin
             return;
         }
 
-        // Log the plugin URL for debugging
-        $logger->info('ADMIN', 'ENQUEUE_SCRIPTS', 'Enqueuing admin scripts', array(
-            'plugin_url' => AI_WEB_SITE_PLUGIN_URL,
-            'js_url' => AI_WEB_SITE_PLUGIN_URL . 'assets/admin.js',
-            'css_url' => AI_WEB_SITE_PLUGIN_URL . 'assets/admin.css',
-            'plugin_dir' => AI_WEB_SITE_PLUGIN_DIR,
-            'hook' => $hook
-        ));
+        // Load CSS inline
+        $css_path = AI_WEB_SITE_PLUGIN_DIR . 'assets/admin.css';
+        if (file_exists($css_path)) {
+            $logger->info('ADMIN', 'CSS_LOAD', 'Loading CSS inline', array('css_path' => $css_path));
+            echo '<style type="text/css">';
+            echo file_get_contents($css_path);
+            echo '</style>';
+        } else {
+            $logger->error('ADMIN', 'CSS_NOT_FOUND', 'CSS file not found', array('css_path' => $css_path));
+        }
 
-        wp_enqueue_script(
-            'ai-web-site-admin',
-            AI_WEB_SITE_PLUGIN_URL . 'assets/admin.js',
-            array('jquery'),
-            AI_WEB_SITE_VERSION,
-            true
-        );
-
-        wp_localize_script('ai-web-site-admin', 'aiWebSite', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('ai_web_site_nonce'),
-            'strings' => array(
-                'confirmDelete' => __('Are you sure you want to delete this subdomain?', 'ai-web-site'),
-                'creating' => __('Creating...', 'ai-web-site'),
-                'deleting' => __('Deleting...', 'ai-web-site'),
-                'testing' => __('Testing...', 'ai-web-site')
-            )
-        ));
-
-        wp_enqueue_style(
-            'ai-web-site-admin',
-            AI_WEB_SITE_PLUGIN_URL . 'assets/admin.css',
-            array(),
-            AI_WEB_SITE_VERSION
-        );
+        // Load JavaScript inline
+        $js_path = AI_WEB_SITE_PLUGIN_DIR . 'assets/admin.js';
+        if (file_exists($js_path)) {
+            $logger->info('ADMIN', 'JS_LOAD', 'Loading JS inline', array('js_path' => $js_path));
+            echo '<script type="text/javascript">';
+            echo 'var aiWebSite = ' . json_encode(array(
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('ai_web_site_nonce'),
+                'strings' => array(
+                    'confirmDelete' => __('Are you sure you want to delete this subdomain?', 'ai-web-site'),
+                    'creating' => __('Creating...', 'ai-web-site'),
+                    'deleting' => __('Deleting...', 'ai-web-site'),
+                    'testing' => __('Testing...', 'ai-web-site')
+                )
+            )) . ';';
+            echo file_get_contents($js_path);
+            echo '</script>';
+        } else {
+            $logger->error('ADMIN', 'JS_NOT_FOUND', 'JS file not found', array('js_path' => $js_path));
+        }
     }
 
     /**
