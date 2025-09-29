@@ -181,7 +181,7 @@ class AI_Web_Site_Debug_Logger
     public function get_logs_json($limit = 50, $level = null, $component = null)
     {
         $logs = $this->get_logs($limit, $level, $component);
-        
+
         $formatted_logs = array();
         foreach ($logs as $log) {
             $formatted_logs[] = array(

@@ -52,10 +52,10 @@ class AI_Web_Site_CPanel_API
             'api_token' => $options['cpanel_api_token'] ?? '',
             'main_domain' => $options['main_domain'] ?? 'ai-web.site'
         );
-        
+
         // Generate cPanel host automatically from main domain
         $this->config['host'] = $this->config['main_domain'];
-        
+
         // Log configuration loading
         $logger = AI_Web_Site_Debug_Logger::get_instance();
         $logger->debug('CPANEL_API', 'CONFIG_LOAD', 'Configuration loaded', array(
@@ -72,13 +72,13 @@ class AI_Web_Site_CPanel_API
     public function create_subdomain($subdomain, $domain, $target_ip = null)
     {
         $logger = AI_Web_Site_Debug_Logger::get_instance();
-        
+
         $logger->info('CPANEL_API', 'CREATE_SUBDOMAIN_START', 'Starting subdomain creation', array(
             'subdomain' => $subdomain,
             'domain' => $domain,
             'target_ip' => $target_ip
         ));
-        
+
         if (empty($this->config['api_token'])) {
             $logger->error('CPANEL_API', 'CREATE_SUBDOMAIN_ERROR', 'API token not configured');
             return array(
@@ -128,7 +128,7 @@ class AI_Web_Site_CPanel_API
 
         $response_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
-        
+
         $logger->debug('CPANEL_API', 'CREATE_SUBDOMAIN_RESPONSE', 'API response received', array(
             'response_code' => $response_code,
             'body' => $body
@@ -225,9 +225,9 @@ class AI_Web_Site_CPanel_API
     public function test_connection()
     {
         $logger = AI_Web_Site_Debug_Logger::get_instance();
-        
+
         $logger->info('CPANEL_API', 'TEST_CONNECTION_START', 'Starting connection test');
-        
+
         if (empty($this->config['api_token'])) {
             $logger->error('CPANEL_API', 'TEST_CONNECTION_ERROR', 'API token not configured');
             return array(
@@ -266,7 +266,7 @@ class AI_Web_Site_CPanel_API
 
         $response_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
-        
+
         $logger->debug('CPANEL_API', 'TEST_CONNECTION_RESPONSE', 'Test API response received', array(
             'response_code' => $response_code,
             'body' => $body

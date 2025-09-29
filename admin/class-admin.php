@@ -117,7 +117,7 @@ class AI_Web_Site_Admin
 
         // Save options
         $result = update_option('ai_web_site_options', $options);
-        
+
         if ($result) {
             $logger->info('ADMIN', 'SAVE_OPTIONS_SUCCESS', 'Options saved successfully');
         } else {
@@ -151,7 +151,7 @@ class AI_Web_Site_Admin
         // Test connection
         $cpanel_api = AI_Web_Site_CPanel_API::get_instance();
         $result = $cpanel_api->test_connection();
-        
+
         // Log test result
         if ($result['success']) {
             $logger->info('ADMIN', 'TEST_CONNECTION_SUCCESS', 'Admin test connection successful');
