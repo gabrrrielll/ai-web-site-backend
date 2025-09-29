@@ -89,15 +89,26 @@ class AI_Web_Site_Admin
      */
     public function save_options()
     {
+        // Log that save_options was called
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'SAVE_OPTIONS_CALLED', 'save_options method called', array(
+            'post_data' => $_POST,
+            'nonce' => isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : 'not_set'
+        ));
+
         // Check nonce
         if (!wp_verify_nonce($_POST['_wpnonce'], 'ai_web_site_options')) {
+            $logger->error('ADMIN', 'SAVE_OPTIONS_ERROR', 'Nonce verification failed');
             wp_die('Security check failed');
         }
 
         // Check permissions
         if (!current_user_can('manage_options')) {
+            $logger->error('ADMIN', 'SAVE_OPTIONS_ERROR', 'Insufficient permissions');
             wp_die('Insufficient permissions');
         }
+        
+        $logger->info('ADMIN', 'SAVE_OPTIONS_VALIDATION', 'Nonce and permissions check passed');
 
         // Get current options
         $options = get_option('ai_web_site_options', array());
