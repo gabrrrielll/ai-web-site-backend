@@ -55,9 +55,12 @@ class AI_Web_Site_Admin
         // Handle form submissions
         add_action('admin_post_save_ai_web_site_options', array($this, 'save_options'));
         add_action('admin_post_test_cpanel_connection', array($this, 'test_connection'));
-
+        
         // Also add for non-logged in users (if needed)
         add_action('wp_ajax_save_ai_web_site_options', array($this, 'save_options'));
+        
+        // Add global hook to catch all admin_post requests
+        add_action('admin_post', array($this, 'debug_admin_post'));
 
         // Log hook registration
         $logger = AI_Web_Site_Debug_Logger::get_instance();
@@ -154,6 +157,19 @@ class AI_Web_Site_Admin
         // Redirect back with success message
         wp_redirect(add_query_arg('message', 'options_saved', admin_url('options-general.php?page=ai-web-site')));
         exit;
+    }
+
+    /**
+     * Debug all admin_post requests
+     */
+    public function debug_admin_post()
+    {
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'ADMIN_POST_DEBUG', 'admin_post hook triggered', array(
+            'action' => isset($_POST['action']) ? $_POST['action'] : 'not_set',
+            'all_post_data' => $_POST,
+            'request_method' => $_SERVER['REQUEST_METHOD']
+        ));
     }
 
     /**
