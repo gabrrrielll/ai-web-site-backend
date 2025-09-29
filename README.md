@@ -1,31 +1,35 @@
-# AI Website Builder - Backend API & WordPress Plugin
+# AI Web Site - WordPress Plugin
 
-This repository contains the backend components for the AI Website Builder application.
+WordPress plugin for AI Website Builder with subdomain management via cPanel API.
 
-## 🚀 Components
+## 🔌 Plugin Features
 
-### 📡 API Services
-- **`api/ai-service.php`** - AI content generation service (Gemini, Unsplash)
-- **`api/api-site-config.php`** - Site configuration management API
+### 🏗️ Subdomain Management
+- **Create subdomains** automatically via cPanel API
+- **Delete subdomains** with confirmation
+- **List existing subdomains** with management options
+- **Configure subdomain settings** (directory, SSL, etc.)
 
-### ⚙️ Configuration
-- **`config/constants.php`** - API keys and server configurations
+### 📊 Site Configuration
+- **Store site configurations** per subdomain
+- **JSON-based config management** in WordPress database
+- **REST API endpoints** for frontend integration
+- **Admin interface** for configuration management
 
-### 🔌 WordPress Plugin
-- **`wordpress/wp-content/plugins/ai-web-site/`** - Complete WordPress plugin
-  - Subdomain management via cPanel API
-  - Site configuration storage
-  - Admin interface for subdomain creation
-  - REST API endpoints
+### ⚙️ Admin Interface
+- **User-friendly dashboard** for subdomain management
+- **API key configuration** (secure storage)
+- **Real-time status updates** and error handling
+- **Bulk operations** for multiple subdomains
 
 ## 📋 Installation
 
-### For WordPress Integration
+### Method 1: Git Clone (Recommended)
 
-1. **Upload Plugin**:
+1. **Clone to WordPress plugins directory**:
    ```bash
-   # Copy the plugin to your WordPress installation
-   cp -r wordpress/wp-content/plugins/ai-web-site/ /path/to/wordpress/wp-content/plugins/
+   cd /path/to/wordpress/wp-content/plugins/
+   git clone https://github.com/gabrrrielll/ai-web-site-backend.git ai-web-site
    ```
 
 2. **Activate Plugin**:
@@ -33,112 +37,127 @@ This repository contains the backend components for the AI Website Builder appli
    - Find "AI Web Site" plugin
    - Click "Activate"
 
-3. **Configure API Keys**:
-   - Go to AI Web Site → Settings
-   - Add your cPanel API token
-   - Configure API endpoints
+### Method 2: Manual Upload
 
-### For Direct API Usage
+1. **Download plugin files**:
+   - Download ZIP from GitHub
+   - Extract to `wp-content/plugins/ai-web-site/`
 
-1. **Upload API Files**:
-   ```bash
-   # Copy API files to your web server
-   cp -r api/ /path/to/your/website/api/
-   cp -r config/ /path/to/your/website/config/
-   ```
-
-2. **Configure Constants**:
-   - Edit `config/constants.php`
-   - Add your API keys and configurations
+2. **Activate Plugin**:
+   - Go to WordPress Admin → Plugins
+   - Find "AI Web Site" plugin
+   - Click "Activate"
 
 ## 🔧 Configuration
 
-### Required API Keys
+### Required Setup
 
-Update `config/constants.php` with your credentials:
+1. **Go to AI Web Site → Settings** in WordPress Admin
+2. **Configure cPanel API**:
+   - **API Token**: Your cPanel API token
+   - **Username**: Your cPanel username
+   - **Domain**: Your main domain (e.g., `ai-web.site`)
 
-```php
-// Google Gemini API
-define('GEMINI_API_KEY', 'your_gemini_api_key');
+### API Configuration
 
-// Unsplash API
-define('UNSPLASH_ACCESS_KEY', 'your_unsplash_key');
+The plugin handles:
+- **Subdomain creation** via cPanel API
+- **Database storage** for site configurations
+- **REST API endpoints** for frontend communication
+- **Security validation** for all operations
 
-// cPanel API
-define('CPANEL_API_TOKEN', 'your_cpanel_token');
-define('CPANEL_USERNAME', 'your_cpanel_username');
-define('CPANEL_DOMAIN', 'your-domain.com');
-```
-
-## 📡 API Endpoints
+## 📡 REST API Endpoints
 
 ### Site Configuration
-- **GET** `/api/api-site-config.php?subdomain=example` - Get site config
-- **POST** `/api/api-site-config.php` - Save site config
+- **GET** `/wp-json/ai-web-site/v1/site-config/{subdomain}` - Get site config
+- **POST** `/wp-json/ai-web-site/v1/site-config/{subdomain}` - Save site config
+- **DELETE** `/wp-json/ai-web-site/v1/site-config/{subdomain}` - Delete site config
 
-### AI Services
-- **POST** `/api/ai-service.php` - Generate AI content
-  - Parameters: `prompt`, `type`, `subdomain`
-
-## 🔌 WordPress Plugin Features
-
-### Admin Interface
-- **Subdomain Management**: Create/delete subdomains via cPanel API
-- **Site Configuration**: Manage site configs per subdomain
-- **API Key Management**: Secure storage of API credentials
-
-### REST API
-- **GET** `/wp-json/ai-web-site/v1/site-config/{subdomain}` - Get config
-- **POST** `/wp-json/ai-web-site/v1/site-config/{subdomain}` - Save config
+### Subdomain Management
+- **GET** `/wp-json/ai-web-site/v1/subdomains` - List all subdomains
+- **POST** `/wp-json/ai-web-site/v1/subdomains` - Create new subdomain
+- **DELETE** `/wp-json/ai-web-site/v1/subdomains/{subdomain}` - Delete subdomain
 
 ## 🔄 Auto-Update
 
 This repository is automatically updated when:
-1. Backend changes are made in the main application
-2. New features are added to the WordPress plugin
-3. API improvements are implemented
+1. Plugin improvements are made
+2. New features are added
+3. Bug fixes are implemented
 
-## 📝 Development
+## 📝 Plugin Structure
 
-### Plugin Development
-```bash
-# The plugin is located in:
-wordpress/wp-content/plugins/ai-web-site/
-
-# Main files:
-- ai-web-site.php (Plugin header)
-- includes/class-ai-web-site.php (Main plugin class)
-- includes/class-cpanel-api.php (cPanel integration)
-- includes/class-database.php (Database operations)
-- admin/ (Admin interface)
+```
+ai-web-site/
+├── ai-web-site.php              # Plugin header and initialization
+├── includes/
+│   ├── class-ai-web-site.php    # Main plugin class
+│   ├── class-cpanel-api.php     # cPanel API integration
+│   └── class-database.php       # Database operations
+├── admin/
+│   ├── class-admin.php          # Admin interface class
+│   └── admin-page.php           # Admin page template
+└── assets/
+    └── admin.js                 # Admin interface JavaScript
 ```
 
-### API Development
-```bash
-# API files are in:
-api/
-├── ai-service.php
-└── api-site-config.php
+## 🛡️ Security Features
 
-# Configuration:
-config/
-└── constants.php
+- **WordPress nonce verification** for all admin actions
+- **User capability checks** (admin only)
+- **Input sanitization** and validation
+- **Secure API key storage** in WordPress options
+- **CSRF protection** on all forms
+
+## 🚀 Usage
+
+### Creating a Subdomain
+
+1. Go to **AI Web Site → Subdomains** in WordPress Admin
+2. Click **"Add New Subdomain"**
+3. Enter subdomain name (e.g., `example`)
+4. Configure settings (directory, SSL, etc.)
+5. Click **"Create Subdomain"**
+
+### Managing Site Configurations
+
+1. Go to **AI Web Site → Site Configs**
+2. Select subdomain from dropdown
+3. Edit JSON configuration
+4. Click **"Save Configuration"**
+
+## 🔧 Development
+
+### Local Development
+
+```bash
+# Clone the plugin
+git clone https://github.com/gabrrrielll/ai-web-site-backend.git
+
+# Make changes to plugin files
+# Test in local WordPress installation
+
+# Deploy changes
+npm run deploy:backend
 ```
 
-## 🛡️ Security
+### Plugin Hooks
 
-- All API keys are stored securely
-- Input validation on all endpoints
-- cPanel API token authentication
-- WordPress nonce verification for admin actions
+The plugin provides WordPress hooks for customization:
+- `ai_web_site_before_subdomain_create` - Before subdomain creation
+- `ai_web_site_after_subdomain_create` - After subdomain creation
+- `ai_web_site_config_save` - When site config is saved
 
 ## 📞 Support
 
 For issues or questions:
-1. Check the main repository documentation
-2. Review the WordPress plugin admin interface
-3. Check API endpoint responses for errors
+1. Check WordPress error logs
+2. Verify cPanel API token and permissions
+3. Review plugin settings in WordPress Admin
+4. Check GitHub issues for known problems
 
 ---
 
-**Last Updated**: $(date)
+**Plugin Version**: 1.0.0  
+**WordPress Compatibility**: 5.0+  
+**PHP Requirements**: 7.4+
