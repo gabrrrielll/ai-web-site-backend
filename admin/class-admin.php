@@ -9,6 +9,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Log that admin class file is loaded
+if (function_exists('error_log')) {
+    error_log('AI-Web-Site: Admin class file loaded');
+}
+
 class AI_Web_Site_Admin
 {
     /**
