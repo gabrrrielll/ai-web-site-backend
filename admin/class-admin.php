@@ -72,12 +72,22 @@ class AI_Web_Site_Admin
      */
     public function enqueue_admin_scripts($hook)
     {
+        // Log all admin hooks for debugging
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'ENQUEUE_SCRIPTS_CALLED', 'enqueue_admin_scripts called', array(
+            'hook' => $hook,
+            'current_screen' => get_current_screen() ? get_current_screen()->id : 'unknown'
+        ));
+
         if ($hook !== 'settings_page_ai-web-site') {
+            $logger->info('ADMIN', 'ENQUEUE_SCRIPTS_SKIP', 'Skipping enqueue - wrong hook', array(
+                'hook' => $hook,
+                'expected' => 'settings_page_ai-web-site'
+            ));
             return;
         }
 
         // Log the plugin URL for debugging
-        $logger = AI_Web_Site_Debug_Logger::get_instance();
         $logger->info('ADMIN', 'ENQUEUE_SCRIPTS', 'Enqueuing admin scripts', array(
             'plugin_url' => AI_WEB_SITE_PLUGIN_URL,
             'js_url' => AI_WEB_SITE_PLUGIN_URL . 'assets/admin.js',
