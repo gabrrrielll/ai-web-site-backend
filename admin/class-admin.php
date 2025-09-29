@@ -107,8 +107,22 @@ class AI_Web_Site_Admin
         $options['cpanel_api_token'] = sanitize_text_field($_POST['cpanel_api_token']);
         $options['main_domain'] = sanitize_text_field($_POST['main_domain']);
 
+        // Log the save operation
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'SAVE_OPTIONS', 'Saving plugin options', array(
+            'username' => $options['cpanel_username'],
+            'main_domain' => $options['main_domain'],
+            'api_token_length' => strlen($options['cpanel_api_token'])
+        ));
+
         // Save options
-        update_option('ai_web_site_options', $options);
+        $result = update_option('ai_web_site_options', $options);
+        
+        if ($result) {
+            $logger->info('ADMIN', 'SAVE_OPTIONS_SUCCESS', 'Options saved successfully');
+        } else {
+            $logger->warning('ADMIN', 'SAVE_OPTIONS_WARNING', 'Options save returned false (no changes or error)');
+        }
 
         // Redirect back with success message
         wp_redirect(add_query_arg('message', 'options_saved', admin_url('options-general.php?page=ai-web-site')));
@@ -130,9 +144,22 @@ class AI_Web_Site_Admin
             wp_die('Insufficient permissions');
         }
 
+        // Log test connection attempt
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'TEST_CONNECTION_START', 'Admin initiated connection test');
+
         // Test connection
         $cpanel_api = AI_Web_Site_CPanel_API::get_instance();
         $result = $cpanel_api->test_connection();
+        
+        // Log test result
+        if ($result['success']) {
+            $logger->info('ADMIN', 'TEST_CONNECTION_SUCCESS', 'Admin test connection successful');
+        } else {
+            $logger->error('ADMIN', 'TEST_CONNECTION_FAILED', 'Admin test connection failed', array(
+                'message' => $result['message']
+            ));
+        }
 
         if ($result['success']) {
             $message = 'connection_success';

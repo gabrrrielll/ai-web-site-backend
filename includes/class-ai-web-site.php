@@ -40,6 +40,13 @@ class AI_Web_Site
      */
     private function init_hooks()
     {
+        // Initialize logger and create table
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->create_table();
+        
+        // Log plugin initialization
+        $logger->info('PLUGIN', 'INIT', 'AI Web Site plugin initialized');
+
         // Add REST API endpoints
         add_action('rest_api_init', array($this, 'register_rest_routes'));
 
@@ -49,6 +56,9 @@ class AI_Web_Site
         // Handle AJAX requests
         add_action('wp_ajax_create_subdomain', array($this, 'handle_create_subdomain'));
         add_action('wp_ajax_delete_subdomain', array($this, 'handle_delete_subdomain'));
+        
+        // Add logs API endpoint
+        add_action('rest_api_init', array($this, 'register_logs_api'));
     }
 
     /**
@@ -102,6 +112,54 @@ class AI_Web_Site
         }
 
         return rest_ensure_response($config);
+    }
+
+    /**
+     * Register logs API routes
+     */
+    public function register_logs_api()
+    {
+        register_rest_route('ai-web-site/v1', '/logs', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_logs'),
+            'permission_callback' => '__return_true', // Public for debugging
+            'args' => array(
+                'limit' => array(
+                    'required' => false,
+                    'type' => 'integer',
+                    'default' => 50,
+                ),
+                'level' => array(
+                    'required' => false,
+                    'type' => 'string',
+                    'enum' => array('DEBUG', 'INFO', 'WARNING', 'ERROR'),
+                ),
+                'component' => array(
+                    'required' => false,
+                    'type' => 'string',
+                ),
+            ),
+        ));
+    }
+
+    /**
+     * Get logs via API
+     */
+    public function get_logs($request)
+    {
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        
+        $limit = $request->get_param('limit');
+        $level = $request->get_param('level');
+        $component = $request->get_param('component');
+        
+        $logs = $logger->get_logs_json($limit, $level, $component);
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'logs' => $logs,
+            'count' => count($logs)
+        ));
     }
 
     /**
