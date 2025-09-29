@@ -32,6 +32,10 @@ class AI_Web_Site_Admin
      */
     private function __construct()
     {
+        // Log admin class initialization
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'CLASS_INIT', 'AI_Web_Site_Admin class initialized');
+        
         $this->init_hooks();
     }
 
