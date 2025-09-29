@@ -46,6 +46,13 @@ class AI_Web_Site_Admin
         // Handle form submissions
         add_action('admin_post_save_ai_web_site_options', array($this, 'save_options'));
         add_action('admin_post_test_cpanel_connection', array($this, 'test_connection'));
+        
+        // Also add for non-logged in users (if needed)
+        add_action('wp_ajax_save_ai_web_site_options', array($this, 'save_options'));
+        
+        // Log hook registration
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+        $logger->info('ADMIN', 'HOOKS_REGISTERED', 'Admin hooks registered successfully');
     }
 
     /**
@@ -107,7 +114,7 @@ class AI_Web_Site_Admin
             $logger->error('ADMIN', 'SAVE_OPTIONS_ERROR', 'Insufficient permissions');
             wp_die('Insufficient permissions');
         }
-        
+
         $logger->info('ADMIN', 'SAVE_OPTIONS_VALIDATION', 'Nonce and permissions check passed');
 
         // Get current options
