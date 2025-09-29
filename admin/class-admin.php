@@ -102,10 +102,8 @@ class AI_Web_Site_Admin
         // Get current options
         $options = get_option('ai_web_site_options', array());
 
-        // Update options
+        // Update options (only essential fields)
         $options['cpanel_username'] = sanitize_text_field($_POST['cpanel_username']);
-        $options['cpanel_password'] = sanitize_text_field($_POST['cpanel_password']);
-        $options['cpanel_host'] = sanitize_text_field($_POST['cpanel_host']);
         $options['cpanel_api_token'] = sanitize_text_field($_POST['cpanel_api_token']);
         $options['main_domain'] = sanitize_text_field($_POST['main_domain']);
 

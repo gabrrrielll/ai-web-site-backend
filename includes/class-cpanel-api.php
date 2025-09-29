@@ -49,11 +49,12 @@ class AI_Web_Site_CPanel_API
 
         $this->config = array(
             'username' => $options['cpanel_username'] ?? '',
-            'password' => $options['cpanel_password'] ?? '',
-            'host' => $options['cpanel_host'] ?? 'ai-web.site',
             'api_token' => $options['cpanel_api_token'] ?? '',
             'main_domain' => $options['main_domain'] ?? 'ai-web.site'
         );
+        
+        // Generate cPanel host automatically from main domain
+        $this->config['host'] = $this->config['main_domain'];
     }
 
     /**

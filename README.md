@@ -53,10 +53,10 @@ WordPress plugin for AI Website Builder with subdomain management via cPanel API
 ### Required Setup
 
 1. **Go to AI Web Site → Settings** in WordPress Admin
-2. **Configure cPanel API**:
-   - **API Token**: Your cPanel API token
-   - **Username**: Your cPanel username
-   - **Domain**: Your main domain (e.g., `ai-web.site`)
+2. **Configure cPanel API** (only 3 fields needed):
+   - **cPanel Username**: Your cPanel username (e.g., `r48312maga`)
+   - **cPanel API Token**: Your cPanel API token (e.g., `JACSKFOEX1D40JJL8UFY28ADKUXA3M9G`)
+   - **Main Domain**: Your main domain (e.g., `ai-web.site`)
 
 ### API Configuration
 

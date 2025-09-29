@@ -51,29 +51,6 @@ $subdomains = $database->get_all_subdomains();
                         </td>
                     </tr>
                     
-                    <tr>
-                        <th scope="row">
-                            <label for="cpanel_password"><?php _e('cPanel Password', 'ai-web-site'); ?></label>
-                        </th>
-                        <td>
-                            <input type="password" id="cpanel_password" name="cpanel_password" 
-                                   value="<?php echo esc_attr($options['cpanel_password'] ?? ''); ?>" 
-                                   class="regular-text">
-                            <p class="description"><?php _e('Your cPanel password (optional if using API token)', 'ai-web-site'); ?></p>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <th scope="row">
-                            <label for="cpanel_host"><?php _e('cPanel Host', 'ai-web-site'); ?></label>
-                        </th>
-                        <td>
-                            <input type="text" id="cpanel_host" name="cpanel_host" 
-                                   value="<?php echo esc_attr($options['cpanel_host'] ?? 'ai-web.site'); ?>" 
-                                   class="regular-text" required>
-                            <p class="description"><?php _e('Your cPanel host (e.g., ai-web.site)', 'ai-web-site'); ?></p>
-                        </td>
-                    </tr>
                     
                     <tr>
                         <th scope="row">
