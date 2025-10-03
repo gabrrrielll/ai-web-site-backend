@@ -1,15 +1,15 @@
 // Wait for DOM to be ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('AI Web Site Admin: Page loaded');
 
     // Handle settings form submission
     var settingsForms = document.querySelectorAll('form[action*="admin-post.php"]');
-    settingsForms.forEach(function(form) {
-        form.addEventListener('submit', function(e) {
+    settingsForms.forEach(function (form) {
+        form.addEventListener('submit', function (e) {
             console.log('AI Web Site Admin: Settings form submitted');
             console.log('Form action:', form.action);
-            console.log('Form data:', new FormData(form));
-            
+            console.log('Form data:', Object.fromEntries(new FormData(form).entries())); // Log all form data
+
             // Let the form submit normally
             return true;
         });
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get form data
             var subdomainInput = document.getElementById('new_subdomain');
             var subdomain = subdomainInput ? subdomainInput.value.trim() : '';
-            var domain = 'ai-web.site'; // Default domain
+            var domain = aiWebSite.options.main_domain; // Get main domain from PHP-generated options
 
             if (!subdomain) {
                 alert('Please enter a subdomain name');
@@ -60,40 +60,40 @@ document.addEventListener('DOMContentLoaded', function() {
                         domain: domain
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show success message
-                        showNotice('success', 'Subdomain created successfully: ' + subdomain + '.' + domain);
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            showNotice('success', 'Subdomain created successfully: ' + subdomain + '.' + domain);
 
-                        // Clear form
-                        if (subdomainInput) {
-                            subdomainInput.value = '';
+                            // Clear form
+                            if (subdomainInput) {
+                                subdomainInput.value = '';
+                            }
+
+                            // Reload page to show new subdomain
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            // Show error message
+                            showNotice('error', 'Error creating subdomain: ' + (data.data || 'Unknown error'));
                         }
-
-                        // Reload page to show new subdomain
-                        setTimeout(function () {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        // Show error message
-                        showNotice('error', 'Error creating subdomain: ' + (data.data || 'Unknown error'));
-                    }
-                })
-                .catch(error => {
-                    showNotice('error', 'Network error occurred');
-                })
-                .finally(() => {
-                    // Reset button
-                    submitBtn.value = originalText;
-                    submitBtn.disabled = false;
-                });
+                    })
+                    .catch(error => {
+                        showNotice('error', 'Network error occurred');
+                    })
+                    .finally(() => {
+                        // Reset button
+                        submitBtn.value = originalText;
+                        submitBtn.disabled = false;
+                    });
             }
         });
     }
 
     // Handle delete subdomain
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('delete-subdomain')) {
             e.preventDefault();
 
@@ -126,39 +126,44 @@ document.addEventListener('DOMContentLoaded', function() {
                         domain: domain
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show success message
-                        showNotice('success', 'Subdomain deleted successfully');
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            showNotice('success', 'Subdomain deleted successfully');
 
-                        // Remove row from table
-                        var row = button.closest('tr');
-                        if (row) {
-                            row.style.opacity = '0';
-                            setTimeout(function() {
-                                row.remove();
-                            }, 300);
+                            // Remove row from table
+                            var row = button.closest('tr');
+                            if (row) {
+                                row.style.opacity = '0';
+                                setTimeout(function () {
+                                    row.remove();
+                                }, 300);
+                            }
+
+                            // Reload page to show updated list
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            // Show error message
+                            showNotice('error', 'Error deleting subdomain: ' + (data.data || 'Unknown error'));
                         }
-                    } else {
-                        // Show error message
-                        showNotice('error', 'Error deleting subdomain: ' + (data.data || 'Unknown error'));
-                    }
-                })
-                .catch(error => {
-                    showNotice('error', 'Network error occurred');
-                })
-                .finally(() => {
-                    // Reset button
-                    button.textContent = originalText;
-                    button.disabled = false;
-                });
+                    })
+                    .catch(error => {
+                        showNotice('error', 'Network error occurred');
+                    })
+                    .finally(() => {
+                        // Reset button
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    });
             }
         }
     });
 
     // Handle test connection button
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.name === 'test_connection') {
             e.preventDefault();
 
@@ -197,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auto-dismiss after 5 seconds
         setTimeout(function () {
             notice.style.opacity = '0';
-            setTimeout(function() {
+            setTimeout(function () {
                 if (notice.parentNode) {
                     notice.parentNode.removeChild(notice);
                 }
@@ -225,5 +230,121 @@ document.addEventListener('DOMContentLoaded', function() {
     style.type = 'text/css';
     style.innerHTML = '.error { border-color: #dc3232 !important; }';
     document.head.appendChild(style);
+
+    // UMP License Activation
+    var activateButton = document.getElementById('activate_ump_license');
+    var statusDiv = document.getElementById('ump_license_status');
+
+    if (activateButton && statusDiv) {
+        activateButton.addEventListener('click', function () {
+            var button = this;
+            var originalText = button.textContent;
+
+            // Disable button and show loading
+            button.disabled = true;
+            button.textContent = aiWebSite.strings.activating || 'Activating...';
+            statusDiv.innerHTML = '<div style="color: #0073aa;">Activating UMP license...</div>';
+
+            // Make AJAX request
+            fetch(aiWebSite.ajaxUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    action: 'activate_ump_license',
+                    nonce: aiWebSite.nonce
+                })
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (data.success) {
+                        var message = data.data.message || 'UMP license activated successfully!';
+                        statusDiv.innerHTML = '<div style="color: #46b450;">✓ ' + message + '</div>';
+
+                        // If there's a redirect URL, show it as a link
+                        if (data.data.redirect_url) {
+                            statusDiv.innerHTML += '<div style="margin-top: 10px;"><a href="' + data.data.redirect_url + '" class="button button-primary" target="_blank">Go to UMP License Page</a></div>';
+                        }
+                    } else {
+                        statusDiv.innerHTML = '<div style="color: #dc3232;">✗ ' + (data.data || 'Failed to activate UMP license.') + '</div>';
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    statusDiv.innerHTML = '<div style="color: #dc3232;">✗ Error activating UMP license.</div>';
+                })
+                .finally(function () {
+                    // Re-enable button
+                    button.disabled = false;
+                    button.textContent = originalText;
+                });
+        });
+    }
+
+    // Tab functionality
+    var tabLinks = document.querySelectorAll('.nav-tab');
+    var tabContents = document.querySelectorAll('.tab-content');
+
+    tabLinks.forEach(function (tabLink) {
+        tabLink.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            var targetTab = this.getAttribute('data-tab');
+
+            // Remove active class from all tabs and contents
+            tabLinks.forEach(function (link) {
+                link.classList.remove('nav-tab-active');
+            });
+            tabContents.forEach(function (content) {
+                content.classList.remove('active');
+            });
+
+            // Add active class to clicked tab and corresponding content
+            this.classList.add('nav-tab-active');
+            var targetContent = document.getElementById(targetTab);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+
+    // Copy shortcode functionality
+    var copyButtons = document.querySelectorAll('.copy-shortcode');
+    copyButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            var shortcode = this.getAttribute('data-shortcode');
+
+            // Create temporary textarea to copy text
+            var textarea = document.createElement('textarea');
+            textarea.value = shortcode;
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                document.execCommand('copy');
+
+                // Show success feedback
+                var originalText = this.textContent;
+                this.textContent = 'Copied!';
+                this.style.backgroundColor = '#46b450';
+                this.style.color = 'white';
+
+                setTimeout(function () {
+                    button.textContent = originalText;
+                    button.style.backgroundColor = '';
+                    button.style.color = '';
+                }, 2000);
+
+            } catch (err) {
+                console.error('Failed to copy shortcode:', err);
+                alert('Failed to copy shortcode. Please copy manually: ' + shortcode);
+            }
+
+            document.body.removeChild(textarea);
+        });
+    });
 
 });

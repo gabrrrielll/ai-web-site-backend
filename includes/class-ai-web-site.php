@@ -44,14 +44,9 @@ class AI_Web_Site
         $logger = AI_Web_Site_Debug_Logger::get_instance();
         $logger->create_table();
 
-        // Log plugin initialization
-        $logger->info('PLUGIN', 'INIT', 'AI Web Site plugin initialized');
-
         // Add REST API endpoints
         add_action('rest_api_init', array($this, 'register_rest_routes'));
 
-        // Add admin menu
-        add_action('admin_menu', array($this, 'add_admin_menu'));
 
         // Handle AJAX requests
         add_action('wp_ajax_create_subdomain', array($this, 'handle_create_subdomain'));
@@ -162,28 +157,6 @@ class AI_Web_Site
         ));
     }
 
-    /**
-     * Add admin menu
-     */
-    public function add_admin_menu()
-    {
-        add_options_page(
-            __('AI Web Site Manager', 'ai-web-site'),
-            __('AI Web Site', 'ai-web-site'),
-            'manage_options',
-            'ai-web-site',
-            array($this, 'admin_page')
-        );
-    }
-
-    /**
-     * Admin page callback
-     */
-    public function admin_page()
-    {
-        // Include admin template
-        include AI_WEB_SITE_PLUGIN_DIR . 'admin/admin-page.php';
-    }
 
     /**
      * Handle create subdomain AJAX request
@@ -207,6 +180,17 @@ class AI_Web_Site
             wp_send_json_error('Subdomain and domain are required');
         }
 
+        // Check UMP subscription
+        $ump_integration = AI_Web_Site_UMP_Integration::get_instance();
+        $required_ump_level_id = $ump_integration->get_required_ump_level_id();
+        $current_user_id = get_current_user_id();
+
+        if ($required_ump_level_id > 0) {
+            if (!$ump_integration->user_has_active_ump_level($current_user_id, $required_ump_level_id)) {
+                wp_send_json_error(__('You need an active Ultimate Membership Pro subscription to perform this action.', 'ai-web-site-plugin'));
+            }
+        }
+
         // Create subdomain using cPanel API
         $cpanel_api = AI_Web_Site_CPanel_API::get_instance();
         $result = $cpanel_api->create_subdomain($subdomain, $domain);
@@ -227,13 +211,17 @@ class AI_Web_Site
      */
     public function handle_delete_subdomain()
     {
+        $logger = AI_Web_Site_Debug_Logger::get_instance();
+
         // Check nonce
         if (!wp_verify_nonce($_POST['nonce'], 'ai_web_site_nonce')) {
+            $logger->error('PLUGIN', 'HANDLE_DELETE_SUBDOMAIN_ERROR', 'Nonce verification failed');
             wp_die('Security check failed');
         }
 
         // Check permissions
         if (!current_user_can('manage_options')) {
+            $logger->error('PLUGIN', 'HANDLE_DELETE_SUBDOMAIN_ERROR', 'Insufficient permissions');
             wp_die('Insufficient permissions');
         }
 
@@ -241,13 +229,42 @@ class AI_Web_Site
         $domain = sanitize_text_field($_POST['domain']);
 
         if (empty($subdomain) || empty($domain)) {
+            $logger->error('PLUGIN', 'HANDLE_DELETE_SUBDOMAIN_ERROR', 'Subdomain and domain are required', array('subdomain' => $subdomain, 'domain' => $domain));
             wp_send_json_error('Subdomain and domain are required');
+        }
+
+        // Check UMP subscription
+        $ump_integration = AI_Web_Site_UMP_Integration::get_instance();
+        $required_ump_level_id = $ump_integration->get_required_ump_level_id();
+        $current_user_id = get_current_user_id();
+
+        if ($required_ump_level_id > 0) {
+            if (!$ump_integration->user_has_active_ump_level($current_user_id, $required_ump_level_id)) {
+                $logger->error('PLUGIN', 'HANDLE_DELETE_SUBDOMAIN_UMP_ERROR', 'User does not have required UMP subscription', array('user_id' => $current_user_id, 'required_level' => $required_ump_level_id));
+                wp_send_json_error(__('You need an active Ultimate Membership Pro subscription to perform this action.', 'ai-web-site-plugin'));
+            }
         }
 
         // Delete from database
         $database = AI_Web_Site_Database::get_instance();
-        $database->delete_subdomain($subdomain, $domain);
+        $db_result = $database->delete_subdomain($subdomain, $domain);
 
-        wp_send_json_success('Subdomain deleted successfully');
+        if ($db_result) {
+            $logger->info('PLUGIN', 'DB_DELETE_SUCCESS', 'Subdomain marked as inactive in database', array('subdomain' => $subdomain, 'domain' => $domain));
+        } else {
+            $logger->error('PLUGIN', 'DB_DELETE_FAILED', 'Failed to mark subdomain as inactive in database', array('subdomain' => $subdomain, 'domain' => $domain));
+        }
+
+        // Delete from cPanel using API
+        $cpanel_api = AI_Web_Site_CPanel_API::get_instance();
+        $api_result = $cpanel_api->delete_subdomain($subdomain, $domain);
+
+        if ($api_result['success']) {
+            $logger->info('PLUGIN', 'CPANEL_DELETE_SUCCESS', 'Subdomain deleted from cPanel', array('subdomain' => $subdomain, 'domain' => $domain));
+            wp_send_json_success('Subdomain deleted successfully');
+        } else {
+            $logger->error('PLUGIN', 'CPANEL_DELETE_FAILED', 'Failed to delete subdomain from cPanel', array('subdomain' => $subdomain, 'domain' => $domain, 'message' => $api_result['message']));
+            wp_send_json_error($api_result['message']);
+        }
     }
 }
